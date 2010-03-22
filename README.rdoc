@@ -1,6 +1,21 @@
 = class_dependencies
 
-Description goes here.
+say you have a bunch of classes which have dependencies amongst them, e.g. you have
+A and B which both have a common parent, say Top, and they have a common operation
+but you have to do it to A before you do it to B. then :
+
+  class Top ; include Sonar::ClassDependencies ; end
+  class A < Top ; end
+  class B < Top ; depends_on :a ; end
+
+  Top.ordered_dependencies
+  =>[:a, :b]
+  Top.ordered_dependent_classes
+  =>[A, B]
+
+== Install
+
+  gem install class_dependencies
 
 == Note on Patches/Pull Requests
  
@@ -14,4 +29,4 @@ Description goes here.
 
 == Copyright
 
-Copyright (c) 2010 mccraig mccraig of the clan mccraig. See LICENSE for details.
+Copyright (c) 2010 Trampoline Systems Ltd. See LICENSE for details.

@@ -7,7 +7,7 @@ begin
     gem.name = "class_dependencies"
     gem.summary = %Q{manage dependencies amongst classes from a hierarchy}
     gem.description = %Q{provides class methods for declaring and querying dependencies amongst classes in a hierarchy}
-    gem.email = "mccraigmccraig@googlemail.com"
+    gem.email = "craig@trampolinesystems.com"
     gem.homepage = "http://github.com/mccraigmccraig/class_dependencies"
     gem.authors = ["mccraig mccraig of the clan mccraig"]
     gem.add_development_dependency "rspec", ">= 1.2.9"
