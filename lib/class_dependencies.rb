@@ -51,7 +51,6 @@ module Sonar
           raise "include #{mod.to_s} on a Class... doesn't work with intermediate modules" if ! mod2.is_a? Class
           mod.descendants << class_to_sym(mod2)
           dep_method_name = class_to_sym(mod)
-          $stderr << dep_method_name << "\n"
           mod2.instance_eval do
             mc2 = class << self ; self ; end
             mc2.send(:define_method, dep_method_name){|*params| mod.add_dependency(mod2, *params)}
