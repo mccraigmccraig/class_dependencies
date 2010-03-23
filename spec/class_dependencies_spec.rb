@@ -1,62 +1,59 @@
 require File.expand_path(File.dirname(__FILE__) + '/spec_helper')
 
-# camelize and underscore take from ActiveSupport
-module Inflector
-  extend self
-  
-  def camelize(lower_case_and_underscored_word, first_letter_in_uppercase = true)
-    if first_letter_in_uppercase
-      lower_case_and_underscored_word.to_s.gsub(/\/(.?)/) { "::#{$1.upcase}" }.gsub(/(?:^|_)(.)/) { $1.upcase }
-    else
-      lower_case_and_underscored_word.first.downcase + camelize(lower_case_and_underscored_word)[1..-1]
-    end
-  end
-
-  def underscore(camel_cased_word)
-    camel_cased_word.to_s.gsub(/::/, '/').
-      gsub(/([A-Z]+)([A-Z][a-z])/,'\1_\2').
-      gsub(/([a-z\d])([A-Z])/,'\1_\2').
-      tr("-", "_").
-      downcase
-  end
-end
-class String
-  def camelize
-    Inflector::camelize(self)
-  end
-  def underscore
-    Inflector::underscore(self)
-  end
-end
-
 describe "ClassDependencies" do
   
-  class Top
+  class BaseDep
     include Sonar::ClassDependencies
   end
 
-  class A < Top
-    depends_on :b
+  class A < BaseDep
+    base_dep :b
   end
 
-  class B < Top
-    depends_on :c
+  class B < BaseDep
+    base_dep :c
   end
 
-  class C < Top
+  class C < BaseDep
   end
   
 
   it "should correctly order class dependences" do
-    Top.ordered_dependencies.should == [:c, :b, :a]
+    BaseDep.ordered_dependencies.should == [:c, :b, :a]
   end
 
   it "should record dependency declarations" do
-    Top.class_dependencies.should == {:a=>[:b], :b=>[:c]}
+    BaseDep.class_dependencies.should == {:a=>[:b], :b=>[:c]}
   end
   
   it "should record class inheritance" do
-    Top.descendants == [:a, :b, :c]
+    BaseDep.descendants == [:a, :b, :c]
+  end
+
+  module AnotherDep
+    include Sonar::ClassDependencies
+  end
+
+  class D
+    include AnotherDep
+    another_dep :e
+  end
+
+  class E
+    include AnotherDep
+    another_dep :f
+  end
+
+  class F
+    include AnotherDep
+  end
+
+  it "should correctly order class dependencies for module include" do
+    AnotherDep.ordered_dependencies.should == [:f, :e, :d]
+  end
+
+  it "should record dependency declarations for module include" do
+    AnotherDep.class_dependencies.should == {:d=>[:e], :e=>[:f]}
   end
 
 end

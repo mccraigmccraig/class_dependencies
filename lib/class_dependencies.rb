@@ -1,46 +1,34 @@
 require 'set'
+require 'inflector.rb'
 
-# when included, defines a class method on the module
-# which can be used to declare dependencies amongst descendants
-# of that module
+# include Sonar::ClassDependencies onto a Module or Class
+# then include that Module, or inherit from that Class,
+# and declare dependencies amongst the descendants of
+# that Module or Class, which can be queried on
+# the Module or Class, and ordered by dependency
 # e.g.
-# class Top ; include Sonar::ClassDependencies ; end
-# class A < Top ; depends_on :b ; end
-# class B < Top ; depends_on :c ; end
-# class C < Top ; end
 #
-# Top.ordered_dependencies
+# module SomeDep ; include Sonar::ClassDependencies ; end
+# class A ; include Base ; some_dep :b ; end
+# class B ; include Base ; some_dep :c ; end
+# class C ; include Base ; end
+# SomeDep.ordered_dependencies
 # => [:c, :b, :a]
-# Top.ordered_dependent_classes
+# SomeDep.ordered_dependent_classes
 # => [C, B, A]
 #
+# class AnotherDep ; include Sonar::ClassDependencies ; end
+# class D < Top ; another_dep :e ; end
+# class E < Top ; another_dep :f ; end
+# class F < Top ; end
+# AnotherDep.ordered_dependencies
+# => [:f, :e, :d]
+# AnotherDep.ordered_dependent_classes
+# => [F, E, D]
+
 module Sonar
   module ClassDependencies
-    class << self
-
-      # generates a method from a closure returning the value
-      def generate_closure_value_method(obj, method_name, value)
-        obj.send(:define_method, method_name) do
-          value
-        end
-      end
-
-      def included(mod)
-        mod.instance_eval do
-          class << self
-            ClassDependencies::generate_closure_value_method(self, :class_dependencies, {})
-            ClassDependencies::generate_closure_value_method(self, :descendants, [])
-            include( ClassMethods )
-          end 
-        end
-      end
-    end
-    
-    module ClassMethods
-      def inherited(subclass)
-        descendants << subclass.to_s.underscore.to_sym
-      end
-
+    module ClassName
       def class_to_sym(klass)
         klass.to_s.underscore.to_sym
       end
@@ -48,9 +36,59 @@ module Sonar
       def sym_to_class(sym)
         eval(sym.to_s.camelize)
       end
+    end
 
-      def depends_on(dep)
-        add_dependency(self, dep)
+    class << self
+      include Sonar::ClassDependencies::ClassName
+
+      # generates an inclusion method [suitable for included() or inherited() ] on the module 
+      # we are included into,
+      # which generates value proxys for the class_dependencies and obj_descendants
+      def generate_inclusion_method(mod, method_name)
+        mc = mod.instance_eval{class << self ; self ; end}
+        
+        mc.send(:define_method, method_name) do |mod2|
+          raise "include #{mod.to_s} on a Class... doesn't work with intermediate modules" if ! mod2.is_a? Class
+          mod.descendants << class_to_sym(mod2)
+          dep_method_name = class_to_sym(mod)
+          $stderr << dep_method_name << "\n"
+          mod2.instance_eval do
+            mc2 = class << self ; self ; end
+            mc2.send(:define_method, dep_method_name){|*params| mod.add_dependency(mod2, *params)}
+          end
+        end
+      end
+      
+      def included(mod)
+        mc = mod.instance_eval do
+          class << self ; include BaseModuleMethods ; self ; end
+        end
+        # generate the dependency list value and the descendants value accessors
+        # on first include : they return a closed over value
+        dependencies = {}
+        descendants = []
+        mc.send(:define_method, :class_dependencies){dependencies}
+        mc.send(:define_method, :descendants){descendants}
+
+        # generate an included method if we are included into a module
+        ClassDependencies::generate_inclusion_method(mod, :included)
+        # and if we are included into a Class, then generate an inherited method too
+        ClassDependencies::generate_inclusion_method(mod, :inherited) if mod.is_a? Class
+      end
+    end
+
+    # methods for the base module, on which the dependency map and descendants list live
+    module BaseModuleMethods
+      include Sonar::ClassDependencies::ClassName
+
+      def add_dependency(from, to)
+        from_sym = class_to_sym(from)
+        to_sym = class_to_sym(to)
+        return if from_sym == to_sym
+        deps = (class_dependencies[from_sym] ||= [])
+        raise "circular dependency" if all_dependencies_of(to_sym).include?(from_sym)
+        deps << to_sym
+        nil
       end
 
       def all_dependencies_of(from)
@@ -75,16 +113,6 @@ module Sonar
       end
 
       private
-
-      def add_dependency(from, to)
-        from_sym = class_to_sym(from)
-        to_sym = class_to_sym(to)
-        return if from_sym == to_sym
-        deps = (class_dependencies[from_sym] ||= [])
-        raise "circular dependency" if all_dependencies_of(to_sym).include?(from_sym)
-        deps << to_sym
-        nil
-      end
 
       def find_dependencies_of(from, deps)
         deps << from
