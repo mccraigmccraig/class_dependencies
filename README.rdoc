@@ -1,17 +1,18 @@
 = class_dependencies
 
-say you have a bunch of classes which have dependencies amongst them, e.g. you have
-A and B which both have a common parent, say Top, and they have a common operation
-but you have to do it to A before you do it to B. then :
+say you have a bunch of classes which have a dependency relationship
+e.g. you have A, B and C and a relationship depends_on. you can express
+this as follows :
 
-  class Top ; include Sonar::ClassDependencies ; end
-  class A < Top ; end
-  class B < Top ; depends_on :a ; end
+  module DependsOn ; include Sonar::ClassDependencies ; end
+  class A ; include DependsOn ; depends_on :b ; end
+  class B ; include DependsOn ; depends_on :c ; end
+  class C ; include DependsOn ; end
 
-  Top.ordered_dependencies
-  =>[:a, :b]
-  Top.ordered_dependent_classes
-  =>[A, B]
+  DependsOn.ordered_dependencies
+  =>[:c, :b, :a]
+  DependsOn.ordered_dependent_classes
+  =>[C, B, A]
 
 == Install
 
