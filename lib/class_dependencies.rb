@@ -25,6 +25,12 @@ require 'inflector.rb'
 # => [:f, :e, :d]
 # AnotherDep.ordered_dependent_classes
 # => [F, E, D]
+#
+# *NOTE* if your class already has an inherited() or included() method
+# make sure to include Sonar::ClassDependencies after that method is
+# defined : Ruby has no after/before methods, so your method will
+# overwrite the ClassDependencies versions, and dependency tracking
+# will not work
 
 module Sonar
   module ClassDependencies
@@ -47,6 +53,12 @@ module Sonar
       def generate_inclusion_method(mod, method_name)
         mc = mod.instance_eval{class << self ; self ; end}
         
+        # if there is already such a method, alias it
+        if mod.respond_to?(method_name)
+          aliased_method_name = "class_dependencies_#{method_name}"
+          mc.send(:alias_method, aliased_method_name, method_name) 
+        end
+
         mc.send(:define_method, method_name) do |mod2|
           raise "include #{mod.to_s} on a Class... doesn't work with intermediate modules" if ! mod2.is_a? Class
           mod.descendants << class_to_sym(mod2)
@@ -55,6 +67,9 @@ module Sonar
             dep_method_name = mod.relationship_name || class_to_sym(mod)
             mc2.send(:define_method, dep_method_name){|*params| mod.add_dependency(mod2, *params)}
           end
+
+          # call any aliased method. if only Ruby had :after advice etc
+          mod.send(aliased_method_name, mod2) if aliased_method_name
         end
       end
       
