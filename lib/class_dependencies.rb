@@ -50,9 +50,9 @@ module Sonar
         mc.send(:define_method, method_name) do |mod2|
           raise "include #{mod.to_s} on a Class... doesn't work with intermediate modules" if ! mod2.is_a? Class
           mod.descendants << class_to_sym(mod2)
-          dep_method_name = class_to_sym(mod)
           mod2.instance_eval do
-            mc2 = class << self ; self ; end
+            mc2 = class << self ; include Sonar::ClassDependencies::ClassName ; self ; end
+            dep_method_name = mod.relationship_name || class_to_sym(mod)
             mc2.send(:define_method, dep_method_name){|*params| mod.add_dependency(mod2, *params)}
           end
         end
@@ -79,6 +79,12 @@ module Sonar
     # methods for the base module, on which the dependency map and descendants list live
     module BaseModuleMethods
       include Sonar::ClassDependencies::ClassName
+
+      attr_reader :relationship_name
+
+      def set_relationship_name(name)
+        @relationship_name = name
+      end
 
       def add_dependency(from, to)
         from_sym = class_to_sym(from)

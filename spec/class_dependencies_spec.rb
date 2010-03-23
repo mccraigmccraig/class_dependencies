@@ -32,16 +32,18 @@ describe "ClassDependencies" do
 
   module AnotherDep
     include Sonar::ClassDependencies
+
+    set_relationship_name  :depends_on
   end
 
   class D
     include AnotherDep
-    another_dep :e
+    depends_on :e
   end
 
   class E
     include AnotherDep
-    another_dep :f
+    depends_on :f
   end
 
   class F
