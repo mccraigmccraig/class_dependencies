@@ -4,7 +4,7 @@ say you have a bunch of classes which have a dependency relationship
 e.g. you have A, B and C and a relationship depends_on. you can express
 this as follows :
 
-  module DependsOn ; include Sonar::ClassDependencies ; end
+  module DependsOn ; include ClassDependencies ; end
   class A ; include DependsOn ; depends_on :b ; end
   class B ; include DependsOn ; depends_on :c ; end
   class C ; include DependsOn ; end

@@ -3,7 +3,7 @@ require File.expand_path(File.dirname(__FILE__) + '/spec_helper')
 describe "ClassDependencies" do
   
   class BaseDep
-    include Sonar::ClassDependencies
+    include ClassDependencies
   end
 
   class A < BaseDep
@@ -30,7 +30,7 @@ describe "ClassDependencies" do
   end
 
   module AnotherDep
-    include Sonar::ClassDependencies
+    include ClassDependencies
 
     set_relationship_name  :depends_on
   end
@@ -66,7 +66,7 @@ describe "ClassDependencies" do
       end 
     end
 
-    include Sonar::ClassDependencies
+    include ClassDependencies
     set_relationship_name :depends_on
   end
 
@@ -94,7 +94,7 @@ describe "ClassDependencies" do
       end 
     end
 
-    include Sonar::ClassDependencies
+    include ClassDependencies
     set_relationship_name :depends_on
   end
 
