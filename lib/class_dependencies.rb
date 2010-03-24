@@ -89,8 +89,8 @@ module ClassDependencies
       # on first include : they return a closed over value
       dependencies = TSortHash.new
       descendants = []
-      mc.send(:define_method, :class_dependencies){dependencies}
-      mc.send(:define_method, :descendants){descendants}
+      mc.send(:define_method, :class_dependencies){dependencies} if ! mc.instance_methods.include?("class_dependencies")
+      mc.send(:define_method, :descendants){descendants} if ! mc.instance_methods.include?("descendants")
 
       # generate an included method if we are included into a module
       ClassDependencies::generate_inclusion_method(mod, :included)
