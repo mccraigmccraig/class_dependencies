@@ -132,6 +132,10 @@ module ClassDependencies
       ordered_dependencies.map{|sym| sym_to_class(sym)}
     end
 
+    def descendant_classes
+      descendants.map{|sym| sym_to_class(sym)}
+    end
+
     private
 
     def find_dependencies_of(from, deps)

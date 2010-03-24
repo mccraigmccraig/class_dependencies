@@ -29,6 +29,10 @@ describe "ClassDependencies" do
     BaseDep.descendants == [:a, :b, :c]
   end
 
+  it "should return descendants as classes" do
+    BaseDep.descendant_classes == [A, B, C]
+  end
+
   module AnotherDep
     include ClassDependencies
 
