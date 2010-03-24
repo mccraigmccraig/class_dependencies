@@ -34,6 +34,14 @@ require 'inflector.rb'
 
 module Sonar
   module ClassDependencies
+    class TSortHash < Hash
+      include TSort
+      alias tsort_each_node each_key
+      def tsort_each_child(node, &block)
+        fetch(node).each(&block)
+      end
+    end
+
     module ClassName
       def class_to_sym(klass)
         klass.to_s.underscore.to_sym
@@ -79,7 +87,7 @@ module Sonar
         end
         # generate the dependency list value and the descendants value accessors
         # on first include : they return a closed over value
-        dependencies = {}
+        dependencies = TSortHash.new
         descendants = []
         mc.send(:define_method, :class_dependencies){dependencies}
         mc.send(:define_method, :descendants){descendants}
@@ -117,15 +125,7 @@ module Sonar
       end
 
       def ordered_dependencies
-        descendants.sort do |a,b| 
-          if all_dependencies_of(a).include?(b)
-            +1
-          elsif all_dependencies_of(b).include?(a)
-            -1
-          else
-            0
-          end
-        end
+        class_dependencies.tsort
       end
 
       def ordered_dependent_classes
