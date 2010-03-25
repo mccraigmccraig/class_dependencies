@@ -5,8 +5,8 @@ begin
   require 'jeweler'
   Jeweler::Tasks.new do |gem|
     gem.name = "class_dependencies"
-    gem.summary = %Q{manage dependencies amongst classes from a hierarchy}
-    gem.description = %Q{provides class methods for declaring and querying dependencies amongst classes in a hierarchy}
+    gem.summary = %Q{manage and query dependency relationships between Ruby classes}
+    gem.description = %Q{easily declare and query dependencies amongst Ruby classes}
     gem.email = "craig@trampolinesystems.com"
     gem.homepage = "http://github.com/mccraigmccraig/class_dependencies"
     gem.authors = ["mccraig mccraig of the clan mccraig"]
