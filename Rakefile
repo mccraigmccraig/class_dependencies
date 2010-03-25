@@ -8,7 +8,7 @@ begin
     gem.summary = %Q{manage and query dependency relationships between Ruby classes}
     gem.description = %Q{easily declare and query dependencies amongst Ruby classes}
     gem.email = "craig@trampolinesystems.com"
-    gem.homepage = "http://github.com/mccraigmccraig/class_dependencies"
+    gem.homepage = "http://github.com/trampoline/class_dependencies"
     gem.authors = ["mccraig mccraig of the clan mccraig"]
     gem.add_development_dependency "rspec", ">= 1.2.9"
     # gem is a Gem::Specification... see http://www.rubygems.org/read/chapter/20 for additional settings
