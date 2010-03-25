@@ -114,4 +114,19 @@ describe "ClassDependencies" do
     WithInheritedMethod.count.should == 2
   end
 
+  module Foo
+    include ClassDependencies
+  end
+
+  class K
+    include Foo
+  end
+
+  class L
+    include Foo
+  end
+
+  it "should return all dependencies even without relationships" do
+    Foo.ordered_dependencies.to_set.should == Set.new([:k,:l])
+  end
 end

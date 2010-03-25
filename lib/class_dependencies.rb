@@ -40,7 +40,12 @@ require 'inflector'
 module ClassDependencies
   class TSortHash < Hash
     include TSort
-    alias tsort_each_node each_key
+    def initialize(mod)
+      @mod = mod
+    end
+    def tsort_each_node(&block)
+      @mod.descendants.each(&block)
+    end
     def tsort_each_child(node,&block)
       fetch(node,[]).each(&block)
     end
@@ -91,7 +96,7 @@ module ClassDependencies
       end
       # generate the dependency list value and the descendants value accessors
       # on first include : they return a closed over value
-      dependencies = TSortHash.new
+      dependencies = TSortHash.new(mod)
       descendants = []
       mc.send(:define_method, :class_dependencies){dependencies} if ! mc.instance_methods.include?("class_dependencies")
       mc.send(:define_method, :descendants){descendants} if ! mc.instance_methods.include?("descendants")
