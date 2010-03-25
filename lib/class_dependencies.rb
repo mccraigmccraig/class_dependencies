@@ -17,6 +17,10 @@ require 'inflector'
 # => [:c, :b, :a]
 # SomeDep.ordered_dependent_classes
 # => [C, B, A]
+# SomeDep.descendants
+# => [:a, :b, :c]
+# SomeDep.descendant_classes
+# => [A, B, C]
 #
 # class AnotherDep ; include ClassDependencies ; end
 # class D < Top ; another_dep :e ; end
