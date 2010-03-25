@@ -13,6 +13,10 @@ this as follows :
   =>[:c, :b, :a]
   DependsOn.ordered_dependent_classes
   =>[C, B, A]
+  DependsOn.descendants
+  =>[:a, :b, :c]
+  DependsOn.descendant_classes
+  =>[A, B, C]
 
 == Install
 
