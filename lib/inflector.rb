@@ -22,9 +22,14 @@ if !defined? Inflector
   end
 
   class String
-    def camelize
-      Inflector::camelize(self)
+    def camelize(first_letter = :upper)
+      case first_letter
+      when :upper then Inflector.camelize(self, true)
+      when :lower then Inflector.camelize(self, false)
+      end
     end
+    alias_method :camelcase, :camelize
+
     def underscore
       Inflector::underscore(self)
     end
