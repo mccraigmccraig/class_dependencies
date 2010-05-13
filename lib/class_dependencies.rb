@@ -73,11 +73,12 @@ module ClassDependencies
       # if there is already such a method, alias it
       if mod.respond_to?(method_name)
         aliased_method_name = "class_dependencies_#{method_name}"
+        raise "can't include ClassDependencies twice" if mod.respond_to?(aliased_method_name)
         mc.send(:alias_method, aliased_method_name, method_name) 
       end
 
       mc.send(:define_method, method_name) do |mod2|
-        raise "include #{mod.to_s} on a Class... doesn't work with intermediate modules" if ! mod2.is_a? Class
+#        raise "include #{mod.to_s} on a Class... doesn't work with intermediate modules" if ! mod2.is_a? Class
         mod.descendants << class_to_sym(mod2)
         mod2.instance_eval do
           mc2 = class << self ; include ClassDependencies::ClassName ; self ; end

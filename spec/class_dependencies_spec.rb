@@ -129,4 +129,20 @@ describe "ClassDependencies" do
   it "should return all dependencies even without relationships" do
     Foo.ordered_dependencies.to_set.should == Set.new([:k,:l])
   end
+
+  module Woo
+    include ClassDependencies
+  end
+
+  module M
+    include Woo
+  end
+
+  module N
+    include Woo
+  end
+
+  it "should work with modules too" do
+    Woo.descendants.to_set.should == Set.new([:n, :m])
+  end
 end
