@@ -40,6 +40,10 @@ describe "ClassDependencies" do
     BaseDep.all_dependencies_of(:b).should == [:c]
   end
 
+  it "should return classes in all_dependencies_of_classes" do
+    BaseDep.all_dependencies_of_classes(A).to_set.should == [B,C].to_set
+  end
+
   module AnotherDep
     include ClassDependencies
 

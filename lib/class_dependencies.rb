@@ -134,6 +134,10 @@ module ClassDependencies
       find_dependencies_of(from_sym, Set.new()).delete(from_sym).to_a
     end
 
+    def all_dependencies_of_classes(from)
+      all_dependencies_of(from).map{|sym| sym_to_class(sym)}
+    end
+
     def ordered_dependencies
       class_dependencies.tsort
     end
