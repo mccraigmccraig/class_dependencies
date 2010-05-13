@@ -33,6 +33,13 @@ describe "ClassDependencies" do
     BaseDep.descendant_classes == [A, B, C]
   end
 
+  it "should not return the root in all_dependencies_of" do
+    BaseDep.all_dependencies_of(A).to_set.should == [:b,:c].to_set
+    BaseDep.all_dependencies_of(:a).to_set.should == [:b,:c].to_set
+    BaseDep.all_dependencies_of(B).should == [:c]
+    BaseDep.all_dependencies_of(:b).should == [:c]
+  end
+
   module AnotherDep
     include ClassDependencies
 

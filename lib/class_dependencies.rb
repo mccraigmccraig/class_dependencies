@@ -131,7 +131,7 @@ module ClassDependencies
 
     def all_dependencies_of(from)
       from_sym = class_to_sym(from)
-      find_dependencies_of(from_sym, Set.new()).delete(from).to_a
+      find_dependencies_of(from_sym, Set.new()).delete(from_sym).to_a
     end
 
     def ordered_dependencies
